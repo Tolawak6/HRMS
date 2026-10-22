@@ -39,6 +39,10 @@ return [
         'idle_minutes'    => max(5, (int) env('SESSION_IDLE_MINUTES', 30)),
         'max_hours'       => max(1, (int) env('SESSION_MAX_HOURS', 8)),
         'regenerate_every' => 900,
+        // Lax is correct for a normal top-level deployment. Embedded previews
+        // served in a cross-site iframe need "None" (which requires HTTPS);
+        // see SESSION_SAMESITE in .env.example.
+        'same_site'       => strtolower(trim((string) env('SESSION_SAMESITE', 'Lax'))),
     ],
 
     'security' => [

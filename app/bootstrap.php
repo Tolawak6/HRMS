@@ -196,9 +196,24 @@ if (PHP_SAPI !== 'cli' && !headers_sent()) {
  * Session (hardened cookies, idle + absolute timeouts, CSRF token)
  * ------------------------------------------------------------------------ */
 if (session_status() === PHP_SESSION_NONE) {
-    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+    $secure = is_https_request();
     $cookiePath = APP_BASE_PATH !== '' ? APP_BASE_PATH . '/' : '/';
+    $sameSite = (string) config('session.same_site', 'lax');
+    if (!in_array($sameSite, ['lax', 'strict', 'none'], true)) {
+        $sameSite = 'lax';
+    }
+    if ($sameSite === 'none') {
+        // Browsers only accept SameSite=None together with Secure, and the
+        // cookie is then dropped entirely on plain HTTP. An operator who
+        // configures None is by definition serving the app over HTTPS (often
+        // behind a proxy that hides the scheme from PHP), so secure it and
+        // log the mismatch instead of silently issuing a cookie the browser
+        // will reject.
+        if (!$secure) {
+            app_log('warning', 'SameSite=None configured but the request did not look like HTTPS');
+        }
+        $secure = true;
+    }
     session_name((string) config('session.name', 'ess_hrms_session'));
     session_set_cookie_params([
         'lifetime' => 0,
@@ -206,7 +221,7 @@ if (session_status() === PHP_SESSION_NONE) {
         'domain'   => '',
         'secure'   => $secure,
         'httponly' => true,
-        'samesite' => 'Lax',
+        'samesite' => ucfirst($sameSite),
     ]);
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
@@ -249,11 +264,24 @@ if (!isset($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token'])) {
 if (PHP_SAPI !== 'cli' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $token = $_POST['_token'] ?? '';
     if (!is_string($token) || $token === '' || !hash_equals((string) $_SESSION['csrf_token'], $token)) {
-        app_log('warning', 'CSRF validation failed', [
+        // A request without any session cookie is almost always a browser
+        // blocking third-party cookies (e.g. an embedded preview frame) or a
+        // form submitted after the session expired. Distinguish the two so the
+        // user gets an actionable message instead of a dead end.
+        $cookieSent = isset($_COOKIE[session_name()]) && $_COOKIE[session_name()] !== '';
+        app_log('warning', $cookieSent ? 'CSRF validation failed' : 'Session cookie missing on POST', [
             'path' => parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH),
         ]);
         $target = isset($_SESSION['uid']) ? 'dashboard.php' : 'login.php';
-        flash('error', 'Your session expired or the form was not valid. Please try again.');
+        if (!$cookieSent) {
+            flash(
+                'error',
+                'Your browser did not send the session cookie, so sign-in cannot complete. '
+                . 'Open this page in its own tab (or allow cookies for this site) and try again.'
+            );
+        } else {
+            flash('error', 'Your session expired or the form was not valid. Please try again.');
+        }
         redirect($target);
     }
 }

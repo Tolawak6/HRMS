@@ -21,6 +21,28 @@ function client_ip(): string
     return 'unknown';
 }
 
+/**
+ * Whether the current request reached the application over HTTPS.
+ *
+ * A reverse proxy terminates TLS, so the forwarded protocol header is only
+ * trusted when TRUST_PROXY is enabled. The session cookie's Secure flag is
+ * derived from this.
+ */
+function is_https_request(): bool
+{
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        return true;
+    }
+    if (!(bool) config('security.trust_proxy', false)) {
+        return false;
+    }
+    $proto = strtolower(trim(explode(',', (string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
+    if ($proto === 'https') {
+        return true;
+    }
+    return (string) ($_SERVER['SERVER_PORT'] ?? '') === '443';
+}
+
 function client_user_agent(): string
 {
     return mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255);

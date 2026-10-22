@@ -63,6 +63,7 @@ Verify that `AllowOverride All` is enabled for the project directory.
 - `APP_ENV=production`, `APP_DEBUG=false`, HTTPS enforced.
 - Dedicated MySQL user with rights only on the HRMS schema.
 - `STORAGE_PATH` outside the document root when possible; otherwise keep the shipped deny rules.
+- `SESSION_SAMESITE=Lax` for normal deployments; `None` only for HTTPS cross-site embedding.
 - Schedule `mysqldump` backups **and** backups of `storage/photos` and `storage/uploads`.
 - Point the web server at the project root (a `public/` split is not required but recommended).
 - Keep `storage/` and `.env` readable only by the web-server user.
@@ -309,7 +310,38 @@ to the new dashboard/reports, anonymous visitors to the login page.
 
 ---
 
-## 9. Known limitations and follow-ups
+## 9. Troubleshooting
+
+### Sign-in returns to the login page without an error
+
+Check `storage/logs/app.log`:
+
+- `Session cookie missing on POST` — the browser blocked or dropped the session cookie.
+  This happens when the app is opened inside a cross-site iframe and the cookie is `SameSite=Lax`.
+  Set `SESSION_SAMESITE=None` (HTTPS only) and reload the page.
+- `CSRF validation failed` — the form was submitted with a stale token, usually a tab left open
+  across a deployment or after `php bin/migrate.php`. Reload the page and submit again.
+- `Too many failed sign-in attempts` — throttling is active. Wait `LOGIN_WINDOW_MINUTES` (default 15),
+  or clear it deliberately: `DELETE FROM login_attempts;`.
+
+### "This account is inactive. Please contact Human Resources."
+
+The account has `is_active = 0` or an `archived_at` timestamp. HR can restore it from the employee
+record (**Employees → open record → Restore**).
+
+### Password accepted but the dashboard is refused
+
+The account has `must_change_password = 1`; every page redirects to `account/password.php` until a
+new password is set. That is the intended flow for accounts created by HR.
+
+### Embedded previews (iframe hosting)
+
+A cross-site iframe requires the cookie to be `SameSite=None; Secure`, so the app must be reached
+over HTTPS and `SESSION_SAMESITE=None` must be set. Plain `http://` development should keep
+`SESSION_SAMESITE=Lax`; a `None` cookie without HTTPS is rejected by browsers and the browser
+console will report it.
+
+## 10. Known limitations and follow-ups
 
 1. **Photos of the original sample employees** in `uploads/images/` were removed from the
    repository because they appeared to be personal photographs and were unreferenced by the data.
@@ -327,7 +359,7 @@ to the new dashboard/reports, anonymous visitors to the login page.
 
 ---
 
-## 10. Upgrading an existing installation
+## 11. Upgrading an existing installation
 
 1. Back up the database and `storage/` (command above).
 2. Deploy the new files; keep your existing `.env` values (or create `.env` from `.env.example`).
