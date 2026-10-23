@@ -132,7 +132,30 @@ institution's existing about text. No new logo was invented and no affiliation i
 
 ---
 
-## 5. Security controls
+## 5. Visual design
+
+The palette is sampled from `images/logo.png` rather than chosen by eye:
+
+| Token | Value | Use |
+|---|---|---|
+| `--ess-blue` / `--ess-primary` | `#2454a8` | links, primary buttons, active states, KPI rails |
+| `--ess-green` | `#009c48` | positive metrics, active nav marker, charts |
+| `--ess-gold` | `#c09c78` | counters, secondary metrics, notices |
+| `--ess-green-ink` | `#06763a` | green text and success buttons (raw green is 3.6:1) |
+| `--ess-gold-ink` | `#8a6033` | tan text (raw tan is 2.5:1) |
+| `--ess-gold-strong` | `#a9773f` | tan data bars (clears 3:1 on the track) |
+| `--ess-sidebar` | `#143c70` | navigation rail, derived from the logo blue |
+
+The three logo hues appear together as a 3px rule on the sidebar header, under page
+titles and on the sign-in panel — a single, restrained brand device instead of
+decorating every surface.
+
+Contrast targets (WCAG 2.1 AA): body text 15.0:1 on white, muted text 5.5:1,
+sidebar links 9.4:1, sidebar section labels 5.7:1, white-on-primary buttons 7.2:1.
+Where a raw logo hue cannot carry text, an ink variant is used and the raw hue is
+reserved for icons, rules and data marks.
+
+## 6. Security controls
 
 - Prepared statements everywhere (`Database` wrapper); identifiers used in dynamic SQL are
   validated/quoted.
@@ -152,7 +175,7 @@ institution's existing about text. No new logo was invented and no affiliation i
 
 ---
 
-## 6. Database
+## 7. Database
 
 Three additive migrations are included:
 
@@ -180,7 +203,7 @@ tar -czf hrms-storage-$(date +%F).tar.gz storage/
 
 ---
 
-## 7. Project structure
+## 8. Project structure
 
 ```
 .
@@ -211,7 +234,7 @@ tar -czf hrms-storage-$(date +%F).tar.gz storage/
 
 ---
 
-## 8. Testing performed
+## 9. Testing performed
 
 All commands below were executed in the development environment (PHP 8.5.12, MySQL 5.7.29,
 PHP built-in server) against a disposable database seeded with fictional records.
@@ -310,7 +333,7 @@ to the new dashboard/reports, anonymous visitors to the login page.
 
 ---
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 ### Sign-in returns to the login page without an error
 
@@ -341,7 +364,7 @@ over HTTPS and `SESSION_SAMESITE=None` must be set. Plain `http://` development 
 `SESSION_SAMESITE=Lax`; a `None` cookie without HTTPS is rejected by browsers and the browser
 console will report it.
 
-## 10. Known limitations and follow-ups
+## 11. Known limitations and follow-ups
 
 1. **Photos of the original sample employees** in `uploads/images/` were removed from the
    repository because they appeared to be personal photographs and were unreferenced by the data.
@@ -359,7 +382,7 @@ console will report it.
 
 ---
 
-## 11. Upgrading an existing installation
+## 12. Upgrading an existing installation
 
 1. Back up the database and `storage/` (command above).
 2. Deploy the new files; keep your existing `.env` values (or create `.env` from `.env.example`).

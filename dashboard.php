@@ -32,7 +32,7 @@ if ($isStaff) {
     );
     $recentEmployees = db()->all(
         "SELECT u.id, u.first_name, u.middle_name, u.last_name, u.employee_number,
-                u.employment_status, u.hire_date, u.photo_path,
+                u.employment_status, u.hire_date, u.photo_path, u.image,
                 d.name AS department_name, p.title AS position_name
          FROM users u
          LEFT JOIN departments d ON d.id = u.department_id
@@ -121,7 +121,7 @@ include BASE_PATH . '/includes/layout/header.php';
                 <div class="stat-meta"><?= number_format((int) $summary['archived']) ?> archived</div>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card accent-green">
             <div class="stat-icon is-green"><?= icon('person-check') ?></div>
             <div class="stat-body">
                 <div class="stat-value"><?= number_format((int) $summary['active']) ?></div>
@@ -129,7 +129,7 @@ include BASE_PATH . '/includes/layout/header.php';
                 <div class="stat-meta"><?= number_format((int) $summary['on_leave']) ?> currently on leave</div>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card accent-tan">
             <div class="stat-icon is-gold"><?= icon('person-plus') ?></div>
             <div class="stat-body">
                 <div class="stat-value"><?= number_format((int) $summary['new_hires']) ?></div>
@@ -137,7 +137,7 @@ include BASE_PATH . '/includes/layout/header.php';
                 <div class="stat-meta">Based on hire date</div>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card accent-danger">
             <div class="stat-icon is-danger"><?= icon('calendar2-week') ?></div>
             <div class="stat-body">
                 <div class="stat-value"><?= number_format(leave_pending_count()) ?></div>
@@ -291,10 +291,15 @@ include BASE_PATH . '/includes/layout/header.php';
                         <?php foreach ($recentEmployees as $row): ?>
                             <tr>
                                 <td>
-                                    <a class="row-title" href="<?= e(url('employees/view.php?id=' . (int) $row['id'])) ?>">
-                                        <?= e(person_name($row)) ?>
-                                    </a>
-                                    <div class="row-meta"><?= e((string) ($row['position_name'] ?? 'No position assigned')) ?></div>
+                                    <div class="person-cell">
+                                        <img class="avatar avatar-xs" src="<?= e(employee_photo_url($row)) ?>" alt="" loading="lazy">
+                                        <div>
+                                            <a class="row-title" href="<?= e(url('employees/view.php?id=' . (int) $row['id'])) ?>">
+                                                <?= e(person_name($row)) ?>
+                                            </a>
+                                            <div class="row-meta"><?= e((string) ($row['position_name'] ?? 'No position assigned')) ?></div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td><?= e((string) ($row['department_name'] ?? 'Unassigned')) ?></td>
                                 <td><span class="badge badge-soft-<?= e(status_badge_class((string) $row['employment_status'])) ?>"><?= e((string) $row['employment_status']) ?></span></td>
@@ -346,7 +351,7 @@ include BASE_PATH . '/includes/layout/header.php';
                 <div class="stat-meta">Across <?= count($balances) ?> leave type<?= count($balances) === 1 ? '' : 's' ?></div>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card accent-green">
             <div class="stat-icon is-green"><?= icon('hourglass-split') ?></div>
             <div class="stat-body">
                 <div class="stat-value"><?= e(format_days($usedBalance)) ?></div>
@@ -354,7 +359,7 @@ include BASE_PATH . '/includes/layout/header.php';
                 <div class="stat-meta">Approved and pending days</div>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card accent-tan">
             <div class="stat-icon is-gold"><?= icon('folder2-open') ?></div>
             <div class="stat-body">
                 <div class="stat-value"><?= number_format($documentCount) ?></div>
@@ -362,7 +367,7 @@ include BASE_PATH . '/includes/layout/header.php';
                 <div class="stat-meta">Managed by Human Resources</div>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card accent-danger">
             <div class="stat-icon is-neutral"><?= icon('person-badge') ?></div>
             <div class="stat-body">
                 <div class="stat-value"><?= e((string) ($user['employee_number'] ?? '—')) ?></div>
