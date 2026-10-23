@@ -302,6 +302,37 @@ a:hover { color: var(--ess-primary-700); }
 .sidebar-footer a { color: #d7e6fa; text-decoration: none; }
 .sidebar-footer a:hover { color: #fff; text-decoration: underline; }
 
+/* --------------------------------------------------------------------------
+   Bootstrap responsive-offcanvas overrides (deliberate, !important required)
+   --------------------------------------------------------------------------
+   The sidebar element carries `offcanvas-lg offcanvas-start`. From 992px up
+   Bootstrap 5.3 forces:
+     .offcanvas-lg                { background-color: transparent !important }
+     .offcanvas-lg .offcanvas-header { display: none }
+     .offcanvas-lg .offcanvas-body   { display:flex; flex-grow:0; padding:0;
+                                       overflow-y: visible }
+   Those declarations beat a plain class selector and made the rail paint the
+   page colour behind near-white links, and hid the logo header entirely.
+   These overrides restore the intended panel; remove them only together with
+   the responsive offcanvas classes in includes/layout/header.php.
+   -------------------------------------------------------------------------- */
+@media (min-width: 992px) {
+  .app-sidebar.offcanvas-lg {
+    background-color: #143c70;                    /* fallback if tokens fail */
+    background-color: var(--ess-sidebar) !important;
+    border-right: 1px solid rgba(8, 26, 52, .45);
+  }
+  .app-sidebar.offcanvas-lg .offcanvas-header {
+    display: flex !important;
+  }
+  .app-sidebar.offcanvas-lg .offcanvas-body {
+    display: block !important;
+    flex: 1 1 auto;
+    padding: 14px 12px 22px !important;
+    overflow-y: auto !important;
+  }
+}
+
 .app-topbar {
   position: sticky;
   top: 0;

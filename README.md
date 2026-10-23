@@ -155,6 +155,23 @@ sidebar links 9.4:1, sidebar section labels 5.7:1, white-on-primary buttons 7.2:
 Where a raw logo hue cannot carry text, an ink variant is used and the raw hue is
 reserved for icons, rules and data marks.
 
+### Sidebar cascade note
+
+The sidebar element is `<aside class="offcanvas-lg offcanvas-start app-sidebar">`, so from
+992px up Bootstrap applies:
+
+```css
+.offcanvas-lg                    { background-color: transparent !important }
+.offcanvas-lg .offcanvas-header  { display: none }
+.offcanvas-lg .offcanvas-body    { display: flex; padding: 0; overflow-y: visible }
+```
+
+Those rules outrank a plain class selector. Without an explicit override the rail paints the
+page colour behind near-white links — text that looks "almost invisible" — and the logo header
+disappears. `assets/css/app.css` therefore carries a commented block of `!important` overrides
+scoped to `@media (min-width: 992px)`. Do not remove them unless the responsive offcanvas
+classes are removed from the layout first.
+
 ## 6. Security controls
 
 - Prepared statements everywhere (`Database` wrapper); identifiers used in dynamic SQL are
@@ -334,6 +351,13 @@ to the new dashboard/reports, anonymous visitors to the login page.
 ---
 
 ## 10. Troubleshooting
+
+### The side navigation is barely visible or the logo is missing
+
+The rail is transparent and the brand block is hidden when the Bootstrap responsive-offcanvas
+rules win. Check that `assets/css/app.css` still contains the `@media (min-width: 992px)` block
+that overrides `.app-sidebar.offcanvas-lg` (see *Sidebar cascade note*). This was a real defect
+that HTTP tests could not catch, because every page still returned 200.
 
 ### Sign-in returns to the login page without an error
 
