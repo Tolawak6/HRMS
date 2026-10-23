@@ -1,0 +1,41 @@
+# ESS HRMS — Apache hardening
+# Place this file in the application root when Apache serves the project.
+# The document root should ideally point to a public/ directory; until then,
+# these rules block direct access to application, configuration and data files.
+
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Deny dotfiles (.env, .git, editor backups) and non-public file types.
+<FilesMatch "(^\.|\.(env|example|ini|log|sql|md|lock|sh|bak|dist)$)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Never serve source, configuration, migrations, logs or stored uploads.
+    RewriteRule ^(app|config|database|bin|includes|storage|uploads)(/|$) - [R=404,L]
+
+    # Block directory traversal attempts in the request path.
+    RewriteCond %{REQUEST_URI} "\.\."
+    RewriteRule ^ - [R=404,L]
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 7 days"
+    ExpiresByType application/javascript "access plus 7 days"
+    ExpiresByType image/svg+xml "access plus 7 days"
+</IfModule>

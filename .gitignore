@@ -1,0 +1,25 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+config/local.php
+
+# Runtime data (never commit employee documents or photos)
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/uploads/*
+!/storage/uploads/.gitkeep
+/storage/photos/*
+!/storage/photos/.gitkeep
+
+# Legacy runtime uploads (never served directly; accessed through PHP)
+/uploads/*
+!/uploads/.gitkeep
+
+# Tooling and OS files
+/vendor/
+/node_modules/
+/tests/tmp/
+*.log
+.DS_Store
+Thumbs.db
