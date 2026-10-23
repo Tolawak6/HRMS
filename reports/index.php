@@ -52,7 +52,7 @@ include BASE_PATH . '/includes/layout/header.php';
             <div class="stat-meta">Non-archived records</div>
         </div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card accent-green">
         <div class="stat-icon is-green"><?= icon('person-check') ?></div>
         <div class="stat-body">
             <div class="stat-value"><?= number_format((int) $summary['active']) ?></div>
@@ -60,7 +60,7 @@ include BASE_PATH . '/includes/layout/header.php';
             <div class="stat-meta"><?= number_format((int) $summary['on_leave']) ?> on leave</div>
         </div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card accent-tan">
         <div class="stat-icon is-gold"><?= icon('person-plus') ?></div>
         <div class="stat-body">
             <div class="stat-value"><?= number_format((int) $summary['new_hires']) ?></div>
@@ -68,7 +68,7 @@ include BASE_PATH . '/includes/layout/header.php';
             <div class="stat-meta">By hire date</div>
         </div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card accent-danger">
         <div class="stat-icon is-neutral"><?= icon('archive') ?></div>
         <div class="stat-body">
             <div class="stat-value"><?= number_format((int) $summary['archived']) ?></div>

@@ -62,7 +62,7 @@ include BASE_PATH . '/includes/layout/header.php';
             <div class="stat-meta">Awaiting a decision</div>
         </div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card accent-green">
         <div class="stat-icon is-green"><?= icon('check2-circle') ?></div>
         <div class="stat-body">
             <div class="stat-value"><?= number_format((int) $stats['approved']) ?></div>
@@ -70,7 +70,7 @@ include BASE_PATH . '/includes/layout/header.php';
             <div class="stat-meta"><?= e(format_days((float) $stats['approved_days'])) ?> working days</div>
         </div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card accent-tan">
         <div class="stat-icon is-danger"><?= icon('x-circle') ?></div>
         <div class="stat-body">
             <div class="stat-value"><?= number_format((int) $stats['rejected']) ?></div>

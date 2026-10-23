@@ -54,7 +54,7 @@ include BASE_PATH . '/includes/layout/header.php';
             <div class="stat-meta">All leave types, <?= (int) $year ?></div>
         </div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card accent-green">
         <div class="stat-icon is-green"><?= icon('check2-circle') ?></div>
         <div class="stat-body">
             <div class="stat-value"><?= e(format_days($totalRemaining)) ?></div>
@@ -62,7 +62,7 @@ include BASE_PATH . '/includes/layout/header.php';
             <div class="stat-meta">Excludes pending requests</div>
         </div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card accent-tan">
         <div class="stat-icon is-gold"><?= icon('hourglass') ?></div>
         <div class="stat-body">
             <div class="stat-value"><?= number_format($pendingCount) ?></div>
