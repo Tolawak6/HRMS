@@ -202,16 +202,15 @@ if (session_status() === PHP_SESSION_NONE) {
     if (!in_array($sameSite, ['lax', 'strict', 'none'], true)) {
         $sameSite = 'lax';
     }
+    $httpsSchemeMissing = false;
     if ($sameSite === 'none') {
         // Browsers only accept SameSite=None together with Secure, and the
         // cookie is then dropped entirely on plain HTTP. An operator who
         // configures None is by definition serving the app over HTTPS (often
         // behind a proxy that hides the scheme from PHP), so secure it and
-        // log the mismatch instead of silently issuing a cookie the browser
-        // will reject.
-        if (!$secure) {
-            app_log('warning', 'SameSite=None configured but the request did not look like HTTPS');
-        }
+        // note the mismatch once per session instead of silently issuing a
+        // cookie the browser will reject.
+        $httpsSchemeMissing = !$secure;
         $secure = true;
     }
     session_name((string) config('session.name', 'ess_hrms_session'));
@@ -232,6 +231,11 @@ if (session_status() === PHP_SESSION_NONE) {
         ini_set('session.sid_bits_per_character', '6');
     }
     session_start();
+
+    if ($httpsSchemeMissing && empty($_SESSION['same_site_none_noted'])) {
+        app_log('warning', 'SameSite=None configured but the request did not look like HTTPS');
+        $_SESSION['same_site_none_noted'] = true;
+    }
 }
 
 $idleSeconds = (int) config('session.idle_minutes', 30) * 60;
